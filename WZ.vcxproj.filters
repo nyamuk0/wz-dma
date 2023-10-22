@@ -74,5 +74,11 @@
     <ClInclude Include="imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="game_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

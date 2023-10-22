@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "game_math.h"
 #include "dma.h"
 
 namespace offsets {
@@ -29,6 +30,42 @@ namespace offsets {
         inline uint64_t offset = 0x00D8;
     }
 }
+
+struct ref_def_view {
+    fvector2d tan_half_fov;
+    char pad[0xC];
+    fvector axis[3];
+};
+
+struct ref_def_t {
+    int32_t x;
+    int32_t y;
+    int32_t width;
+    int32_t height;
+    fvector2d tan_half_fov;
+    char pad1[8];  // 8-byte padding
+    char pad2[4];  // 4-byte padding
+    fvector axis[3];
+};
+class refdef_class {
+
+public:
+    struct key {
+        int32_t ref0;
+        int32_t ref1;
+        int32_t ref2;
+    };
+
+    auto retrieve_ref_def() -> uintptr_t
+    {
+        key encrypted = DMA::Read<key>(DMA::BaseAddress + offsets::ref_def_ptr, sizeof(encrypted));
+        DWORD lowerref = encrypted.ref0 ^ (encrypted.ref2 ^ (uint64_t)(DMA::BaseAddress + offsets::ref_def_ptr)) * ((encrypted.ref2 ^ (uint64_t)(DMA::BaseAddress + offsets::ref_def_ptr)) + 2);
+        DWORD upperref = encrypted.ref1 ^ (encrypted.ref2 ^ (uint64_t)(DMA::BaseAddress + offsets::ref_def_ptr + 0x4)) * ((encrypted.ref2 ^ (uint64_t)(DMA::BaseAddress + offsets::ref_def_ptr + 0x4)) + 2); \
+            return (uint64_t)upperref << 32 | lowerref;
+    }
+    ref_def_t ref_def_nn;
+};
+static refdef_class* decrypt_refdef = new refdef_class();
 
 inline uintptr_t decrypt_client_info()
 {
